@@ -1,0 +1,128 @@
+name: Build tinyfecVPN LuCI packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Optional release tag; leave empty to build artifacts only
+        required: false
+        type: string
+      prerelease:
+        description: Mark manually published release as prerelease
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tinyfecvpn-${{ github.workflow }}-${{ github.ref }}-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate release tag
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          if [ -n "$TAG" ]; then git check-ref-format "refs/tags/${TAG}"; fi
+      - name: Check syntax and protocol behavior
+        run: |
+          sh -n luci-proto-tinyfecvpn/root/lib/netifd/proto/tinyfecvpn.sh
+          node --check luci-proto-tinyfecvpn/htdocs/luci-static/resources/protocol/tinyfecvpn.js
+          bash -n scripts/collect-packages.sh
+          shellcheck -s ash luci-proto-tinyfecvpn/root/lib/netifd/proto/tinyfecvpn.sh
+          shellcheck scripts/collect-packages.sh
+          python3 -m unittest discover -s tests -v
+
+  build:
+    needs: check
+    name: OpenWrt ${{ matrix.sdk }} (all)
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        # LuCI + shell only: one SDK architecture produces universal packages.
+        sdk: ['24.10.5', '25.12.5']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Build LuCI and translation packages
+        uses: openwrt/gh-action-sdk@v11
+        timeout-minutes: 75
+        env:
+          ARCH: x86_64-${{ matrix.sdk }}
+          FEED_DIR: ${{ github.workspace }}
+          # tinyfecvpn comes from the SDK's standard packages feed.
+          PACKAGES: luci-proto-tinyfecvpn
+          NO_SHFMT_CHECK: true
+          V: sc
+      - name: Collect universal LuCI packages
+        env:
+          ARCH: x86_64
+          SDK: ${{ matrix.sdk }}
+        run: bash scripts/collect-packages.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tinyfecvpn-luci-openwrt-${{ matrix.sdk }}
+          path: release/*
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tinyfecvpn-luci-logs-${{ matrix.sdk }}
+          path: logs/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  release:
+    needs: build
+    if: inputs.tag != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: tinyfecvpn-luci-openwrt-*
+          path: release
+          merge-multiple: true
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          TAG: ${{ inputs.tag }}
+          PRERELEASE: ${{ inputs.prerelease }}
+          TARGET: ${{ github.sha }}
+          GH_PROMPT_DISABLED: '1'
+        run: |
+          set -euo pipefail
+          retry() {
+            local attempt
+            for attempt in 1 2 3; do
+              if timeout --kill-after=5s 120s "$@"; then return 0; fi
+              if [ "$attempt" -lt 3 ]; then sleep $((attempt * 5)); fi
+            done
+            return 1
+          }
+          ensure_release() {
+            if gh release view "$TAG" --repo "$REPOSITORY" >/dev/null 2>&1; then return 0; fi
+            local args=("$TAG" --repo "$REPOSITORY" --target "$TARGET" --title "$TAG" --generate-notes)
+            if [[ "$PRERELEASE" == true || "$TAG" == *-* ]]; then args+=(--prerelease); fi
+            gh release create "${args[@]}"
+          }
+          export -f ensure_release
+          retry bash -c ensure_release
+          retry gh release upload "$TAG" release/* --repo "$REPOSITORY" --clobber

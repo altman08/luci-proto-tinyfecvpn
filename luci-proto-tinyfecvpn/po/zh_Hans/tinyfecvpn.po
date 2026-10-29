@@ -1,0 +1,182 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: luci-proto-tinyfecvpn 1.0.0\n"
+"Language: zh_Hans\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "tinyfecVPN"
+msgstr "tinyfecVPN"
+
+msgid "Enter an integer from %d to %d without leading zeros."
+msgstr "请输入 %d 到 %d 之间的整数，不要添加前导零。"
+
+msgid "This UDP listen address and port overlap another tinyfecVPN server."
+msgstr "此 UDP 监听地址和端口与另一个 tinyfecVPN 服务端冲突。"
+
+msgid "Role"
+msgstr "运行角色"
+
+msgid "Interface up means the local TUN is ready. It does not confirm that the remote peer is reachable. Each server instance supports one client."
+msgstr "接口已启动表示本地 TUN 已就绪，不代表远端已连通。每个服务端实例仅支持一个客户端。"
+
+msgid "Client"
+msgstr "客户端"
+
+msgid "Server"
+msgstr "服务端"
+
+msgid "Server address"
+msgstr "服务器地址"
+
+msgid "IPv4 address or hostname of the remote server."
+msgstr "远端服务器的 IPv4 地址或域名。"
+
+msgid "Enter an IPv4 address or hostname without a port."
+msgstr "请输入 IPv4 地址或域名，不要包含端口。"
+
+msgid "Server UDP port"
+msgstr "服务器 UDP 端口"
+
+msgid "Listen address"
+msgstr "监听地址"
+
+msgid "Enter an IPv4 address."
+msgstr "请输入 IPv4 地址。"
+
+msgid "Listen UDP port"
+msgstr "监听 UDP 端口"
+
+msgid "VPN subnet"
+msgstr "VPN 网段"
+
+msgid "Use an IPv4 network ending in .0, such as 10.22.22.0. The server uses .1 and the client .2 as point-to-point addresses. Both ends must use the same subnet; local instances must use different subnets."
+msgstr "填写以 .0 结尾的 IPv4 网络，例如 10.22.22.0。服务端使用 .1，客户端使用 .2，按点对点地址配置。两端网段必须相同；本机不同实例必须使用不同网段。"
+
+msgid "Enter a unicast IPv4 network ending in .0."
+msgstr "请输入以 .0 结尾的单播 IPv4 网络地址。"
+
+msgid "This VPN subnet is already used by another tinyfecVPN interface."
+msgstr "此 VPN 网段已被另一个 tinyfecVPN 接口使用。"
+
+msgid "XOR key"
+msgstr "XOR 密钥"
+
+msgid "Optional simple XOR obfuscation, not authenticated encryption. Use the same key on both ends."
+msgstr "可选的简单 XOR 混淆，不提供认证加密。两端必须使用相同密钥。"
+
+msgid "The key must be at most 128 bytes and contain no whitespace."
+msgstr "密钥不能超过 128 字节，也不能包含空白字符。"
+
+msgid "FEC redundancy"
+msgstr "FEC 冗余参数"
+
+msgid "For example 20:10 sends 10 recovery packets for 20 data packets. Also accepts 1:3,2:4,10:6,20:10. Data counts must increase and each data/recovery sum must be at most 255."
+msgstr "例如 20:10 表示每 20 个数据包发送 10 个冗余包。也支持 1:3,2:4,10:6,20:10。各组数据包数量必须递增，每组数据包与冗余包数量之和不能超过 255。"
+
+msgid "Enter increasing x:y pairs with x >= 1, y >= 0 and x + y <= 255."
+msgstr "请输入按 x 递增的 x:y 参数，要求 x ≥ 1、y ≥ 0 且 x + y ≤ 255。"
+
+msgid "IPv4 gateway"
+msgstr "IPv4 网关"
+
+msgid "Optional: enter the server VPN address (.1) to request a default route. Leave empty for a tunnel to the peer or remote LANs."
+msgstr "可选：填写服务端 VPN 地址（.1）以配置默认路由。仅访问对端或远端局域网时留空。"
+
+msgid "The gateway must be the server VPN address (.1)."
+msgstr "网关必须是服务端 VPN 地址（.1）。"
+
+msgid "FEC mode"
+msgstr "FEC 模式"
+
+msgid "0: lower bandwidth, packet splitting"
+msgstr "0：节省带宽，支持分包"
+
+msgid "1: lower latency, no packet splitting"
+msgstr "1：降低延迟，不支持分包"
+
+msgid "FEC queue timeout (ms)"
+msgstr "FEC 排队超时（毫秒）"
+
+msgid "FEC MTU"
+msgstr "FEC MTU"
+
+msgid "Maximum FEC packet payload before outer headers. This differs from the TUN MTU."
+msgstr "不含外层报头的 FEC 包载荷大小上限，与 TUN MTU 不同。"
+
+msgid "TUN MTU"
+msgstr "TUN MTU"
+
+msgid "In FEC mode 1, the TUN MTU must not exceed the FEC MTU."
+msgstr "FEC 模式 1 下，TUN MTU 不能大于 FEC MTU。"
+
+msgid "In mode 1, reduce the TUN MTU to the FEC MTU or less."
+msgstr "模式 1 下，请将 TUN MTU 降到不大于 FEC MTU 的值。"
+
+msgid "MSS adjustment size"
+msgstr "MSS 修正参考大小"
+
+msgid "Upstream derives the TCP MSS limit from this packet size. Zero disables adjustment."
+msgstr "程序根据此报文大小计算 TCP MSS 上限。设为 0 禁用修正。"
+
+msgid "Use zero or a value from 100 to 1500."
+msgstr "请填写 0 或 100 到 1500 之间的值。"
+
+msgid "TUN device name"
+msgstr "TUN 设备名称"
+
+msgid "Use 1 to 15 letters, digits, underscores or hyphens. Set a shorter device name if needed."
+msgstr "使用 1 到 15 个字母、数字、下划线或连字符；必要时指定更短的设备名。"
+
+msgid "This TUN device name is already used by another tinyfecVPN interface."
+msgstr "此 TUN 设备名称已被另一个 tinyfecVPN 接口使用。"
+
+msgid "Underlying interface"
+msgstr "底层出口接口"
+
+msgid "Optional uplink used to reach the server or listen on the local address."
+msgstr "可选，用于到达服务器或提供本地监听地址的底层网络接口。"
+
+msgid "The underlying interface cannot be this VPN interface."
+msgstr "底层出口不能选择当前 VPN 接口。"
+
+msgid "Keep reconnecting"
+msgstr "断线后持续重连"
+
+msgid "TUN startup timeout (seconds)"
+msgstr "TUN 启动超时（秒）"
+
+msgid "Traffic report interval (seconds)"
+msgstr "流量报告间隔（秒）"
+
+msgid "Zero disables reports. Reports require Info logging or higher, which also logs the XOR key."
+msgstr "设为 0 禁用报告。报告需要信息或更详细的日志级别，这些级别也会记录 XOR 密钥。"
+
+msgid "Log level"
+msgstr "日志级别"
+
+msgid "Info, Debug and Trace log the full command line including the XOR key. Warning is recommended. The key is also visible in process arguments."
+msgstr "信息、调试和跟踪级别会记录完整命令行，包括 XOR 密钥，建议使用警告级别。密钥也可在进程参数中被读取。"
+
+msgid "None"
+msgstr "无"
+
+msgid "Fatal"
+msgstr "致命错误"
+
+msgid "Error"
+msgstr "错误"
+
+msgid "Warning"
+msgstr "警告"
+
+msgid "Info (includes key)"
+msgstr "信息（包含密钥）"
+
+msgid "Debug (includes key)"
+msgstr "调试（包含密钥）"
+
+msgid "Trace (includes key)"
+msgstr "跟踪（包含密钥）"
